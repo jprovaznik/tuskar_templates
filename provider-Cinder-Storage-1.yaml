@@ -1,0 +1,197 @@
+description: Block Storage Configuration w/ Puppet
+heat_template_version: 2014-10-16
+outputs:
+  hosts_entry:
+    value:
+      str_replace:
+        params:
+          HOST:
+            get_attr:
+            - BlockStorage
+            - name
+          IP:
+            get_attr:
+            - BlockStorage
+            - networks
+            - ctlplane
+            - 0
+        template: IP HOST HOST.novalocal
+  nova_server_resource:
+    description: Heat resource handle for the block storage server
+    value:
+      get_resource: BlockStorage
+parameters:
+  CinderEnableIscsiBackend:
+    default: true
+    description: Whether to enable or not the Iscsi backend for Cinder
+    type: boolean
+  CinderISCSIHelper:
+    default: tgtadm
+    description: The iSCSI helper to use with cinder.
+    type: string
+  CinderLVMLoopDeviceSize:
+    default: 5000
+    description: The size of the loopback file used by the cinder LVM driver.
+    type: number
+  EnablePackageInstall:
+    default: 'false'
+    description: Set to true to enable package installation via Puppet
+    type: boolean
+  ExtraConfig:
+    default: {}
+    description: "Additional configuration to inject into the cluster. The JSON should\
+      \ have\nthe following structure:\n  {\"FILEKEY\":\n    {\"config\":\n      [{\"\
+      section\": \"SECTIONNAME\",\n        \"values\":\n          [{\"option\": \"\
+      OPTIONNAME\",\n            \"value\": \"VALUENAME\"\n           }\n        \
+      \  ]\n       }\n      ]\n    }\n  }\nFor instance:\n  {\"nova\":\n    {\"config\"\
+      :\n      [{\"section\": \"default\",\n        \"values\":\n          [{\"option\"\
+      : \"force_config_drive\",\n            \"value\": \"always\"\n           }\n\
+      \          ]\n       },\n       {\"section\": \"cells\",\n        \"values\"\
+      :\n          [{\"option\": \"driver\",\n            \"value\": \"nova.cells.rpc_driver.CellsRPCDriver\"\
+      \n           }\n          ]\n       }\n      ]\n    }\n  }\n"
+    type: json
+  Flavor:
+    constraints:
+    - custom_constraint: nova.flavor
+    description: Flavor for block storage nodes to request when deploying.
+    type: string
+  GlancePort:
+    default: '9292'
+    description: Glance port.
+    type: string
+  Image:
+    default: overcloud-cinder-volume
+    type: string
+  KeyName:
+    default: default
+    description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+    type: string
+  NtpServer:
+    default: ''
+    type: string
+  RabbitPassword:
+    default: ''
+    type: string
+  RabbitUserName:
+    default: ''
+    type: string
+  SnmpdReadonlyUserName:
+    default: ro_snmp_user
+    description: The user name for SNMPd with readonly rights running on all Overcloud
+      nodes
+    type: string
+  SnmpdReadonlyUserPassword:
+    default: unset
+    description: The user password for SNMPd with readonly rights running on all Overcloud
+      nodes
+    hidden: true
+    type: string
+  VirtualIP:
+    default: ''
+    type: string
+resources:
+  BlockStorage:
+    properties:
+      flavor:
+        get_param: Flavor
+      image:
+        get_param: Image
+      key_name:
+        get_param: KeyName
+      networks:
+      - network: ctlplane
+      user_data:
+        get_resource: NodeUserData
+      user_data_format: SOFTWARE_CONFIG
+    type: OS::Nova::Server
+  BlockStorageConfig:
+    properties:
+      config:
+        hiera:
+          datafiles:
+            common:
+              raw_data:
+                get_file: hieradata/common.yaml
+            volume:
+              mapped_data:
+                cinder::database_connection:
+                  get_input: cinder_dsn
+                cinder::rabbit_hosts:
+                  get_input: rabbit_hosts
+                cinder::rabbit_password:
+                  get_input: rabbit_password
+                cinder::rabbit_userid:
+                  get_input: rabbit_username
+                cinder::setup_test_volume::size:
+                  get_input: cinder_lvm_loop_device_size
+                cinder_enable_iscsi_backend:
+                  get_input: cinder_enable_iscsi_backend
+                cinder_iscsi_helper:
+                  get_input: cinder_iscsi_helper
+                enable_package_install:
+                  get_input: enable_package_install
+                ntp::servers:
+                  get_input: ntp_servers
+                snmpd_readonly_user_name:
+                  get_input: snmpd_readonly_user_name
+                snmpd_readonly_user_password:
+                  get_input: snmpd_readonly_user_password
+              oac_data:
+                cinder_iscsi_ip_address: local-ipv4
+              raw_data:
+                get_file: hieradata/volume.yaml
+          hierarchy:
+          - heat_config_%{::deploy_config_name}
+          - volume
+          - common
+      group: os-apply-config
+    type: OS::Heat::StructuredConfig
+  BlockStorageDeployment:
+    properties:
+      config:
+        get_resource: BlockStorageConfig
+      input_values:
+        cinder_dsn:
+          list_join:
+          - ''
+          - - mysql://cinder:unset@
+            - get_param: VirtualIP
+            - /cinder
+        cinder_enable_iscsi_backend:
+          get_param: CinderEnableIscsiBackend
+        cinder_iscsi_helper:
+          get_param: CinderISCSIHelper
+        cinder_lvm_loop_device_size:
+          str_replace:
+            params:
+              size:
+                get_param: CinderLVMLoopDeviceSize
+            template: sizeM
+        enable_package_install:
+          get_param: EnablePackageInstall
+        ntp_servers:
+          str_replace:
+            params:
+              server:
+                get_param: NtpServer
+            template: '["server"]'
+        rabbit_hosts:
+          str_replace:
+            params:
+              host:
+                get_param: VirtualIP
+            template: '["host"]'
+        rabbit_password:
+          get_param: RabbitPassword
+        rabbit_username:
+          get_param: RabbitUserName
+        snmpd_readonly_user_name:
+          get_param: SnmpdReadonlyUserName
+        snmpd_readonly_user_password:
+          get_param: SnmpdReadonlyUserPassword
+      server:
+        get_resource: BlockStorage
+      signal_transport: NO_SIGNAL
+    type: OS::Heat::StructuredDeployment
+  NodeUserData:
+    type: OS::TripleO::NodeUserData

@@ -1,0 +1,1682 @@
+heat_template_version: '2014-10-16'
+outputs:
+  KeystoneURL:
+    description: URL for the Overcloud Keystone service
+    value:
+      list_join:
+      - ''
+      - - http://
+        - get_attr:
+          - ControlVirtualIP
+          - fixed_ips
+          - 0
+          - ip_address
+        - :5000/v2.0/
+parameters:
+  Ceph-Storage-1::EnablePackageInstall:
+    default: 'false'
+    description: Set to true to enable package installation via Puppet
+    type: boolean
+  Ceph-Storage-1::Flavor:
+    constraints:
+    - custom_constraint: nova.flavor
+    description: Flavor for the Ceph Storage node.
+    type: string
+  Ceph-Storage-1::Image:
+    constraints:
+    - custom_constraint: glance.image
+    default: overcloud-ceph-storage
+    type: string
+  Ceph-Storage-1::ImageUpdatePolicy:
+    default: REBUILD_PRESERVE_EPHEMERAL
+    description: What policy to use when reconstructing instances. REBUILD for rebuilds,
+      REBUILD_PRESERVE_EPHEMERAL to preserve /mnt.
+    type: string
+  Ceph-Storage-1::KeyName:
+    constraints:
+    - custom_constraint: nova.keypair
+    default: default
+    description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+    type: string
+  Ceph-Storage-1::NtpServer:
+    default: ''
+    type: string
+  Ceph-Storage-1::count:
+    constraints:
+    - range:
+        min: '0'
+    type: number
+  CephAdminKey:
+    default: ''
+    description: The Ceph admin client key.
+    type: string
+  CephClusterFSID:
+    default: ''
+    description: The Ceph cluster FSID.
+    type: string
+  CephMonKey:
+    default: ''
+    description: The Ceph monitors key.
+    type: string
+  Cinder-Storage-1::CinderEnableIscsiBackend:
+    default: true
+    description: Whether to enable or not the Iscsi backend for Cinder
+    type: boolean
+  Cinder-Storage-1::CinderISCSIHelper:
+    default: tgtadm
+    description: The iSCSI helper to use with cinder.
+    type: string
+  Cinder-Storage-1::CinderLVMLoopDeviceSize:
+    default: 5000
+    description: The size of the loopback file used by the cinder LVM driver.
+    type: number
+  Cinder-Storage-1::EnablePackageInstall:
+    default: 'false'
+    description: Set to true to enable package installation via Puppet
+    type: boolean
+  Cinder-Storage-1::ExtraConfig:
+    default: {}
+    description: "Additional configuration to inject into the cluster. The JSON should\
+      \ have\nthe following structure:\n  {\"FILEKEY\":\n    {\"config\":\n      [{\"\
+      section\": \"SECTIONNAME\",\n        \"values\":\n          [{\"option\": \"\
+      OPTIONNAME\",\n            \"value\": \"VALUENAME\"\n           }\n        \
+      \  ]\n       }\n      ]\n    }\n  }\nFor instance:\n  {\"nova\":\n    {\"config\"\
+      :\n      [{\"section\": \"default\",\n        \"values\":\n          [{\"option\"\
+      : \"force_config_drive\",\n            \"value\": \"always\"\n           }\n\
+      \          ]\n       },\n       {\"section\": \"cells\",\n        \"values\"\
+      :\n          [{\"option\": \"driver\",\n            \"value\": \"nova.cells.rpc_driver.CellsRPCDriver\"\
+      \n           }\n          ]\n       }\n      ]\n    }\n  }\n"
+    type: json
+  Cinder-Storage-1::Flavor:
+    constraints:
+    - custom_constraint: nova.flavor
+    description: Flavor for block storage nodes to request when deploying.
+    type: string
+  Cinder-Storage-1::GlancePort:
+    default: '9292'
+    description: Glance port.
+    type: string
+  Cinder-Storage-1::Image:
+    default: overcloud-cinder-volume
+    type: string
+  Cinder-Storage-1::KeyName:
+    default: default
+    description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+    type: string
+  Cinder-Storage-1::NtpServer:
+    default: ''
+    type: string
+  Cinder-Storage-1::RabbitPassword:
+    default: ''
+    type: string
+  Cinder-Storage-1::RabbitUserName:
+    default: ''
+    type: string
+  Cinder-Storage-1::SnmpdReadonlyUserName:
+    default: ro_snmp_user
+    description: The user name for SNMPd with readonly rights running on all Overcloud
+      nodes
+    type: string
+  Cinder-Storage-1::SnmpdReadonlyUserPassword:
+    default: unset
+    description: The user password for SNMPd with readonly rights running on all Overcloud
+      nodes
+    hidden: true
+    type: string
+  Cinder-Storage-1::count:
+    constraints:
+    - range:
+        min: '0'
+    type: number
+  Compute-1::AdminPassword:
+    default: unset
+    description: The password for the keystone admin account, used for monitoring,
+      querying neutron etc.
+    hidden: true
+    type: string
+  Compute-1::CeilometerComputeAgent:
+    constraints:
+    - allowed_values:
+      - ''
+      - Present
+    default: ''
+    description: Indicates whether the Compute agent is present and expects nova-compute
+      to be configured accordingly
+    type: string
+  Compute-1::CeilometerMeteringSecret:
+    default: unset
+    description: Secret shared by the ceilometer services.
+    hidden: true
+    type: string
+  Compute-1::CeilometerPassword:
+    default: unset
+    description: The password for the ceilometer service account.
+    hidden: true
+    type: string
+  Compute-1::Debug:
+    default: ''
+    description: Set to True to enable debugging on all services.
+    type: string
+  Compute-1::EnablePackageInstall:
+    default: 'false'
+    description: Set to true to enable package installation via Puppet
+    type: boolean
+  Compute-1::ExtraConfig:
+    default: {}
+    description: "Additional configuration to inject into the cluster. The JSON should\
+      \ have\nthe following structure:\n  {\"FILEKEY\":\n    {\"config\":\n      [{\"\
+      section\": \"SECTIONNAME\",\n        \"values\":\n          [{\"option\": \"\
+      OPTIONNAME\",\n            \"value\": \"VALUENAME\"\n           }\n        \
+      \  ]\n       }\n      ]\n    }\n  }\nFor instance:\n  {\"nova\":\n    {\"config\"\
+      :\n      [{\"section\": \"default\",\n        \"values\":\n          [{\"option\"\
+      : \"force_config_drive\",\n            \"value\": \"always\"\n           }\n\
+      \          ]\n       },\n       {\"section\": \"cells\",\n        \"values\"\
+      :\n          [{\"option\": \"driver\",\n            \"value\": \"nova.cells.rpc_driver.CellsRPCDriver\"\
+      \n           }\n          ]\n       }\n      ]\n    }\n  }\n"
+    type: json
+  Compute-1::Flavor:
+    constraints:
+    - custom_constraint: nova.flavor
+    description: Flavor for the nova compute node
+    type: string
+  Compute-1::GlancePort:
+    default: '9292'
+    description: Glance port.
+    type: string
+  Compute-1::GlanceProtocol:
+    default: http
+    description: Protocol to use when connecting to glance, set to https for SSL.
+    type: string
+  Compute-1::Image:
+    constraints:
+    - custom_constraint: glance.image
+    default: overcloud-compute
+    type: string
+  Compute-1::ImageUpdatePolicy:
+    default: REBUILD_PRESERVE_EPHEMERAL
+    description: What policy to use when reconstructing instances. REBUILD for rebuilds,
+      REBUILD_PRESERVE_EPHEMERAL to preserve /mnt.
+    type: string
+  Compute-1::KeyName:
+    constraints:
+    - custom_constraint: nova.keypair
+    default: default
+    description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+    type: string
+  Compute-1::NeutronAgentMode:
+    default: dvr_snat
+    description: Agent mode for the neutron-l3-agent on the controller hosts
+    type: string
+  Compute-1::NeutronAllowL3AgentFailover:
+    default: 'True'
+    description: Allow automatic l3-agent failover
+    type: string
+  Compute-1::NeutronBridgeMappings:
+    default: ''
+    description: 'The OVS logical->physical bridge mappings to use. See the Neutron
+      documentation for details. Defaults to mapping br-ex - the external bridge on
+      hosts - to a physical name ''datacentre'' which can be used to create provider
+      networks (and we use this for the default floating network) - if changing this
+      either use different post-install network scripts or be sure to keep ''datacentre''
+      as a mapping network name.
+
+      '
+    type: string
+  Compute-1::NeutronDVR:
+    default: 'False'
+    type: string
+  Compute-1::NeutronEnableTunnelling:
+    default: 'True'
+    type: string
+  Compute-1::NeutronFlatNetworks:
+    default: ''
+    description: 'If set, flat networks to configure in neutron plugins.
+
+      '
+    type: string
+  Compute-1::NeutronL3HA:
+    default: 'False'
+    description: Whether to enable l3-agent HA
+    type: string
+  Compute-1::NeutronMechanismDrivers:
+    default: openvswitch
+    description: 'The mechanism drivers for the Neutron tenant network. To specify
+      multiple
+
+      values, use a comma separated string, like so: ''openvswitch,l2_population''
+
+      '
+    type: string
+  Compute-1::NeutronMetadataProxySharedSecret:
+    default: unset
+    description: Shared secret to prevent spoofing
+    type: string
+  Compute-1::NeutronNetworkType:
+    default: gre
+    description: The tenant network type for Neutron, either gre or vxlan.
+    type: string
+  Compute-1::NeutronNetworkVLANRanges:
+    default: datacentre
+    description: 'The Neutron ML2 and OpenVSwitch vlan mapping range to support. See
+      the Neutron documentation for permitted values. Defaults to permitting any VLAN
+      on the ''datacentre'' physical network (See NeutronBridgeMappings).
+
+      '
+    type: string
+  Compute-1::NeutronPassword:
+    default: unset
+    description: The password for the neutron service account, used by neutron agents.
+    hidden: true
+    type: string
+  Compute-1::NeutronPhysicalBridge:
+    default: ''
+    description: An OVS bridge to create for accessing external networks.
+    type: string
+  Compute-1::NeutronPublicInterface:
+    default: nic1
+    description: A port to add to the NeutronPhysicalBridge.
+    type: string
+  Compute-1::NeutronPublicInterfaceRawDevice:
+    default: ''
+    type: string
+  Compute-1::NeutronTunnelTypes:
+    default: gre
+    description: 'The tunnel types for the Neutron tenant network. To specify multiple
+
+      values, use a comma separated string, like so: ''gre,vxlan''
+
+      '
+    type: string
+  Compute-1::NovaComputeDriver:
+    default: libvirt.LibvirtDriver
+    type: string
+  Compute-1::NovaComputeExtraConfig:
+    default: {}
+    description: 'NovaCompute specific configuration to inject into the cluster. Same
+
+      structure as ExtraConfig.
+
+      '
+    type: json
+  Compute-1::NovaComputeLibvirtType:
+    default: ''
+    type: string
+  Compute-1::NovaEnableRbdBackend:
+    default: false
+    description: Whether to enable or not the Rbd backend for Nova
+    type: boolean
+  Compute-1::NovaPassword:
+    default: unset
+    description: The password for the nova service account, used by nova-api.
+    hidden: true
+    type: string
+  Compute-1::NtpServer:
+    default: ''
+    type: string
+  Compute-1::RabbitPassword:
+    default: guest
+    description: The password for RabbitMQ
+    hidden: true
+    type: string
+  Compute-1::RabbitUserName:
+    default: guest
+    description: The username for RabbitMQ
+    type: string
+  Compute-1::SnmpdReadonlyUserName:
+    default: ro_snmp_user
+    description: The user name for SNMPd with readonly rights running on all Overcloud
+      nodes
+    type: string
+  Compute-1::SnmpdReadonlyUserPassword:
+    default: unset
+    description: The user password for SNMPd with readonly rights running on all Overcloud
+      nodes
+    hidden: true
+    type: string
+  Compute-1::count:
+    constraints:
+    - range:
+        min: '0'
+    type: number
+  ControlFixedIPs:
+    default: []
+    description: Should be used for arbitrary ips.
+    type: json
+  Controller-1::AdminPassword:
+    default: unset
+    description: The password for the keystone admin account, used for monitoring,
+      querying neutron etc.
+    hidden: true
+    type: string
+  Controller-1::AdminToken:
+    default: unset
+    description: The keystone auth secret.
+    hidden: true
+    type: string
+  Controller-1::CeilometerMeteringSecret:
+    default: unset
+    description: Secret shared by the ceilometer services.
+    hidden: true
+    type: string
+  Controller-1::CeilometerPassword:
+    default: unset
+    description: The password for the ceilometer service account.
+    hidden: true
+    type: string
+  Controller-1::CinderEnableIscsiBackend:
+    default: true
+    description: Whether to enable or not the Iscsi backend for Cinder
+    type: boolean
+  Controller-1::CinderEnableRbdBackend:
+    default: false
+    description: Whether to enable or not the Rbd backend for Cinder
+    type: boolean
+  Controller-1::CinderISCSIHelper:
+    default: tgtadm
+    description: The iSCSI helper to use with cinder.
+    type: string
+  Controller-1::CinderLVMLoopDeviceSize:
+    default: 5000
+    description: The size of the loopback file used by the cinder LVM driver.
+    type: number
+  Controller-1::CinderPassword:
+    default: unset
+    description: The password for the cinder service account, used by cinder-api.
+    hidden: true
+    type: string
+  Controller-1::CloudName:
+    default: ''
+    description: The DNS name of this cloud. E.g. ci-overcloud.tripleo.org
+    type: string
+  Controller-1::ControlVirtualInterface:
+    default: br-ex
+    description: Interface where virtual ip will be assigned.
+    type: string
+  Controller-1::ControllerExtraConfig:
+    default: {}
+    description: 'Controller specific configuration to inject into the cluster. Same
+
+      structure as ExtraConfig.
+
+      '
+    type: json
+  Controller-1::Debug:
+    default: ''
+    description: Set to True to enable debugging on all services.
+    type: string
+  Controller-1::EnablePackageInstall:
+    default: 'false'
+    description: Set to true to enable package installation via Puppet
+    type: boolean
+  Controller-1::ExtraConfig:
+    default: {}
+    description: "Additional configuration to inject into the cluster. The JSON should\
+      \ have\nthe following structure:\n  {\"FILEKEY\":\n    {\"config\":\n      [{\"\
+      section\": \"SECTIONNAME\",\n        \"values\":\n          [{\"option\": \"\
+      OPTIONNAME\",\n            \"value\": \"VALUENAME\"\n           }\n        \
+      \  ]\n       }\n      ]\n    }\n  }\nFor instance:\n  {\"nova\":\n    {\"config\"\
+      :\n      [{\"section\": \"default\",\n        \"values\":\n          [{\"option\"\
+      : \"compute_manager\",\n            \"value\": \"ironic.nova.compute.manager.ClusterComputeManager\"\
+      \n           }\n          ]\n       },\n       {\"section\": \"cells\",\n  \
+      \      \"values\":\n          [{\"option\": \"driver\",\n            \"value\"\
+      : \"nova.cells.rpc_driver.CellsRPCDriver\"\n           }\n          ]\n    \
+      \   }\n      ]\n    }\n  }\n"
+    type: json
+  Controller-1::Flavor:
+    constraints:
+    - custom_constraint: nova.flavor
+    description: Flavor for control nodes to request when deploying.
+    type: string
+  Controller-1::GlanceLogFile:
+    default: ''
+    description: The filepath of the file to use for logging messages from Glance.
+    type: string
+  Controller-1::GlanceNotifierStrategy:
+    default: noop
+    description: Strategy to use for Glance notification queue
+    type: string
+  Controller-1::GlancePassword:
+    default: unset
+    description: The password for the glance service account, used by the glance services.
+    hidden: true
+    type: string
+  Controller-1::GlancePort:
+    default: '9292'
+    description: Glance port.
+    type: string
+  Controller-1::GlanceProtocol:
+    default: http
+    description: Protocol to use when connecting to glance, set to https for SSL.
+    type: string
+  Controller-1::HeatPassword:
+    default: unset
+    description: The password for the Heat service account, used by the Heat services.
+    hidden: true
+    type: string
+  Controller-1::HeatStackDomainAdminPassword:
+    default: ''
+    description: Password for heat_domain_admin user.
+    hidden: true
+    type: string
+  Controller-1::Image:
+    constraints:
+    - custom_constraint: glance.image
+    default: overcloud-control
+    type: string
+  Controller-1::ImageUpdatePolicy:
+    default: REBUILD_PRESERVE_EPHEMERAL
+    description: What policy to use when reconstructing instances. REBUILD for rebuilds,
+      REBUILD_PRESERVE_EPHEMERAL to preserve /mnt.
+    type: string
+  Controller-1::KeyName:
+    constraints:
+    - custom_constraint: nova.keypair
+    default: default
+    description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+    type: string
+  Controller-1::KeystoneCACertificate:
+    default: ''
+    description: Keystone self-signed certificate authority certificate.
+    type: string
+  Controller-1::KeystoneSSLCertificate:
+    default: ''
+    description: Keystone certificate for verifying token validity.
+    type: string
+  Controller-1::KeystoneSSLCertificateKey:
+    default: ''
+    description: Keystone key for signing tokens.
+    hidden: true
+    type: string
+  Controller-1::KeystoneSigningCertificate:
+    default: ''
+    description: Keystone certificate for verifying token validity.
+    type: string
+  Controller-1::KeystoneSigningKey:
+    default: ''
+    description: Keystone key for signing tokens.
+    hidden: true
+    type: string
+  Controller-1::MysqlInnodbBufferPoolSize:
+    default: 0
+    description: 'Specifies the size of the buffer pool in megabytes. Setting to zero
+      should be interpreted as "no value" and will defer to the lower level default.
+
+      '
+    type: number
+  Controller-1::NeutronAgentMode:
+    default: dvr_snat
+    description: Agent mode for the neutron-l3-agent on the controller hosts
+    type: string
+  Controller-1::NeutronAllowL3AgentFailover:
+    default: 'True'
+    description: Allow automatic l3-agent failover
+    type: string
+  Controller-1::NeutronBridgeMappings:
+    default: ''
+    description: 'The OVS logical->physical bridge mappings to use. See the Neutron
+      documentation for details. Defaults to mapping br-ex - the external bridge on
+      hosts - to a physical name ''datacentre'' which can be used to create provider
+      networks (and we use this for the default floating network) - if changing this
+      either use different post-install network scripts or be sure to keep ''datacentre''
+      as a mapping network name.
+
+      '
+    type: string
+  Controller-1::NeutronDVR:
+    default: 'False'
+    description: Whether to configure Neutron Distributed Virtual Routers
+    type: string
+  Controller-1::NeutronDnsmasqOptions:
+    default: dhcp-option-force=26,1400
+    description: Dnsmasq options for neutron-dhcp-agent. The default value here forces
+      MTU to be set to 1400 to account for the gre tunnel overhead.
+    type: string
+  Controller-1::NeutronEnableTunnelling:
+    default: 'True'
+    type: string
+  Controller-1::NeutronFlatNetworks:
+    default: ''
+    description: If set, flat networks to configure in neutron plugins.
+    type: string
+  Controller-1::NeutronL3HA:
+    default: 'False'
+    description: Whether to enable l3-agent HA
+    type: string
+  Controller-1::NeutronMechanismDrivers:
+    default: openvswitch
+    description: 'The mechanism drivers for the Neutron tenant network. To specify
+      multiple
+
+      values, use a comma separated string, like so: ''openvswitch,l2_population''
+
+      '
+    type: string
+  Controller-1::NeutronMetadataProxySharedSecret:
+    default: unset
+    description: Shared secret to prevent spoofing
+    type: string
+  Controller-1::NeutronNetworkType:
+    default: gre
+    description: The tenant network type for Neutron, either gre or vxlan.
+    type: string
+  Controller-1::NeutronNetworkVLANRanges:
+    default: datacentre
+    description: 'The Neutron ML2 and OpenVSwitch vlan mapping range to support. See
+      the Neutron documentation for permitted values. Defaults to permitting any VLAN
+      on the ''datacentre'' physical network (See NeutronBridgeMappings).
+
+      '
+    type: string
+  Controller-1::NeutronPassword:
+    default: unset
+    description: The password for the neutron service account, used by neutron agents.
+    hidden: true
+    type: string
+  Controller-1::NeutronPublicInterface:
+    default: nic1
+    description: What interface to bridge onto br-ex for network nodes.
+    type: string
+  Controller-1::NeutronPublicInterfaceDefaultRoute:
+    default: ''
+    description: A custom default route for the NeutronPublicInterface.
+    type: string
+  Controller-1::NeutronPublicInterfaceIP:
+    default: ''
+    description: A custom IP address to put onto the NeutronPublicInterface.
+    type: string
+  Controller-1::NeutronPublicInterfaceRawDevice:
+    default: ''
+    description: If set, the public interface is a vlan with this device as the raw
+      device.
+    type: string
+  Controller-1::NeutronPublicInterfaceTag:
+    default: ''
+    description: 'VLAN tag for creating a public VLAN. The tag will be used to create
+      an access port on the exterior bridge for each control plane node, and that
+      port will be given the IP address returned by neutron from the public network.
+      Set CONTROLEXTRA=overcloud-vlan-port.yaml when compiling overcloud.yaml to include
+      the deployment of VLAN ports to the control plane.
+
+      '
+    type: string
+  Controller-1::NeutronTunnelTypes:
+    default: gre
+    description: 'The tunnel types for the Neutron tenant network. To specify multiple
+
+      values, use a comma separated string, like so: ''gre,vxlan''
+
+      '
+    type: string
+  Controller-1::NovaPassword:
+    default: unset
+    description: The password for the nova service account, used by nova-api.
+    hidden: true
+    type: string
+  Controller-1::NtpServer:
+    default: ''
+    type: string
+  Controller-1::PublicVirtualInterface:
+    default: br-ex
+    description: 'Specifies the interface where the public-facing virtual ip will
+      be assigned. This should be int_public when a VLAN is being used.
+
+      '
+    type: string
+  Controller-1::RabbitClientPort:
+    default: 5672
+    description: Set rabbit subscriber port, change this if using SSL
+    type: number
+  Controller-1::RabbitClientUseSSL:
+    default: false
+    description: 'Rabbit client subscriber parameter to specify an SSL connection
+      to the RabbitMQ host.
+
+      '
+    type: string
+  Controller-1::RabbitPassword:
+    default: guest
+    description: The password for RabbitMQ
+    hidden: true
+    type: string
+  Controller-1::RabbitUserName:
+    default: guest
+    description: The username for RabbitMQ
+    type: string
+  Controller-1::SSLCACertificate:
+    default: ''
+    description: If set, the contents of an SSL certificate authority file.
+    type: string
+  Controller-1::SSLCertificate:
+    default: ''
+    description: If set, the contents of an SSL certificate .crt file for encrypting
+      SSL endpoints.
+    hidden: true
+    type: string
+  Controller-1::SSLKey:
+    default: ''
+    description: If set, the contents of an SSL certificate .key file for encrypting
+      SSL endpoints.
+    hidden: true
+    type: string
+  Controller-1::SnmpdReadonlyUserName:
+    default: ro_snmp_user
+    description: The user name for SNMPd with readonly rights running on all Overcloud
+      nodes
+    type: string
+  Controller-1::SnmpdReadonlyUserPassword:
+    default: unset
+    description: The user password for SNMPd with readonly rights running on all Overcloud
+      nodes
+    hidden: true
+    type: string
+  Controller-1::SwiftHashSuffix:
+    default: unset
+    description: A random string to be used as a salt when hashing to determine mappings
+      in the ring.
+    hidden: true
+    type: string
+  Controller-1::SwiftMinPartHours:
+    default: 1
+    description: The minimum time (in hours) before a partition in a ring can be moved
+      following a rebalance.
+    type: number
+  Controller-1::SwiftMountCheck:
+    default: 'false'
+    description: Value of mount_check in Swift account/container/object -server.conf
+    type: boolean
+  Controller-1::SwiftPartPower:
+    default: 10
+    description: Partition Power to use when building Swift rings
+    type: number
+  Controller-1::SwiftPassword:
+    default: unset
+    description: The password for the swift service account, used by the swift proxy
+      services.
+    hidden: true
+    type: string
+  Controller-1::SwiftReplicas:
+    default: 3
+    description: How many replicas to use in the swift rings.
+    type: number
+  Controller-1::count:
+    constraints:
+    - range:
+        min: '0'
+    type: number
+  Controller-1::update_timestamp:
+    default: ''
+    type: string
+  Debug:
+    default: ''
+    description: Set to True to enable debugging on all services.
+    type: string
+  DefaultSignalTransport:
+    constraints:
+    - allowed_values:
+      - CFN_SIGNAL
+      - HEAT_SIGNAL
+      - NO_SIGNAL
+    default: CFN_SIGNAL
+    description: Transport to use for software-config signals.
+    type: string
+  NeutronControlPlaneID:
+    default: ''
+    description: Neutron ID for ctlplane network.
+    type: string
+  NeutronPublicInterfaceTag:
+    default: ''
+    description: 'VLAN tag for creating a public VLAN. The tag will be used to create
+      an access port on the exterior bridge for each control plane node, and that
+      port will be given the IP address returned by neutron from the public network.
+      Set CONTROLEXTRA=overcloud-vlan-port.yaml when compiling overcloud.yaml to include
+      the deployment of VLAN ports to the control plane.
+
+      '
+    type: string
+  PublicVirtualFixedIPs:
+    default: []
+    description: 'Control the IP allocation for the PublicVirtualInterface port. E.g.
+      [{''ip_address'':''1.2.3.4''}]
+
+      '
+    type: json
+  PublicVirtualNetwork:
+    default: ctlplane
+    description: 'Neutron network to allocate public virtual IP port on.
+
+      '
+    type: string
+  RabbitCookieSalt:
+    default: unset
+    description: Salt for the rabbit cookie, change this to force the randomly generated
+      rabbit cookie to change.
+    type: string
+  Swift-Storage-1::EnablePackageInstall:
+    default: 'false'
+    description: Set to true to enable package installation via Puppet
+    type: boolean
+  Swift-Storage-1::Flavor:
+    constraints:
+    - custom_constraint: nova.flavor
+    description: Flavor for Swift storage nodes to request when deploying.
+    type: string
+  Swift-Storage-1::HashSuffix:
+    default: unset
+    description: A random string to be used as a salt when hashing to determine mappings
+      in the ring.
+    hidden: true
+    type: string
+  Swift-Storage-1::Image:
+    default: overcloud-swift-storage
+    type: string
+  Swift-Storage-1::KeyName:
+    default: default
+    description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+    type: string
+  Swift-Storage-1::MinPartHours:
+    default: 1
+    description: The minimum time (in hours) before a partition in a ring can be moved
+      following a rebalance.
+    type: number
+  Swift-Storage-1::MountCheck:
+    default: 'false'
+    description: Value of mount_check in Swift account/container/object -server.conf
+    type: boolean
+  Swift-Storage-1::NtpServer:
+    default: ''
+    type: string
+  Swift-Storage-1::PartPower:
+    default: 10
+    description: Partition Power to use when building Swift rings
+    type: number
+  Swift-Storage-1::Replicas:
+    default: 3
+    description: How many replicas to use in the swift rings.
+    type: number
+  Swift-Storage-1::SnmpdReadonlyUserName:
+    default: ro_snmp_user
+    description: The user name for SNMPd with readonly rights running on all Overcloud
+      nodes
+    type: string
+  Swift-Storage-1::SnmpdReadonlyUserPassword:
+    default: unset
+    description: The user password for SNMPd with readonly rights running on all Overcloud
+      nodes
+    hidden: true
+    type: string
+  Swift-Storage-1::count:
+    constraints:
+    - range:
+        min: '0'
+    type: number
+resources:
+  BlockStorageAllNodesDeployment:
+    properties:
+      config:
+        get_attr:
+        - allNodesConfig
+        - config_id
+      servers:
+        get_attr:
+        - Cinder-Storage
+        - attributes
+        - nova_server_resource
+    type: OS::Heat::StructuredDeployments
+  BlockStorageNodesPostDeployment:
+    depends_on:
+    - ControllerNodesPostDeployment
+    - BlockStorageAllNodesDeployment
+    properties:
+      servers:
+        get_attr:
+        - Cinder-Storage
+        - attributes
+        - nova_server_resource
+    type: OS::TripleO::BlockStoragePostDeployment
+  Ceph-Storage:
+    properties:
+      count:
+        get_param:
+        - Ceph-Storage-1::count
+      resource_def:
+        properties:
+          EnablePackageInstall:
+            get_param:
+            - Ceph-Storage-1::EnablePackageInstall
+          Flavor:
+            get_param:
+            - Ceph-Storage-1::Flavor
+          Image:
+            get_param:
+            - Ceph-Storage-1::Image
+          ImageUpdatePolicy:
+            get_param:
+            - Ceph-Storage-1::ImageUpdatePolicy
+          KeyName:
+            get_param:
+            - Ceph-Storage-1::KeyName
+          NtpServer:
+            get_param:
+            - Ceph-Storage-1::NtpServer
+        type: Tuskar::Ceph-Storage-1
+    type: OS::Heat::ResourceGroup
+  CephClusterConfig:
+    properties:
+      ceph_admin_key:
+        get_param: CephAdminKey
+      ceph_fsid:
+        get_param: CephClusterFSID
+      ceph_mon_ips:
+        get_attr:
+        - Controller
+        - ip_address
+      ceph_mon_key:
+        get_param: CephMonKey
+      ceph_mon_names:
+        get_attr:
+        - Controller
+        - hostname
+    type: OS::TripleO::CephClusterConfig::SoftwareConfig
+  CephStorageAllNodesDeployment:
+    properties:
+      config:
+        get_attr:
+        - allNodesConfig
+        - config_id
+      servers:
+        get_attr:
+        - Ceph-Storage
+        - attributes
+        - nova_server_resource
+    type: OS::Heat::StructuredDeployments
+  CephStorageCephDeployment:
+    properties:
+      config:
+        get_attr:
+        - CephClusterConfig
+        - config_id
+      servers:
+        get_attr:
+        - Ceph-Storage
+        - attributes
+        - nova_server_resource
+    type: OS::Heat::StructuredDeployments
+  CephStorageNodesPostDeployment:
+    depends_on:
+    - ControllerNodesPostDeployment
+    - CephStorageCephDeployment
+    - CephStorageAllNodesDeployment
+    properties:
+      servers:
+        get_attr:
+        - Ceph-Storage
+        - attributes
+        - nova_server_resource
+    type: OS::TripleO::CephStoragePostDeployment
+  Cinder-Storage:
+    properties:
+      count:
+        get_param:
+        - Cinder-Storage-1::count
+      resource_def:
+        properties:
+          CinderEnableIscsiBackend:
+            get_param:
+            - Cinder-Storage-1::CinderEnableIscsiBackend
+          CinderISCSIHelper:
+            get_param:
+            - Cinder-Storage-1::CinderISCSIHelper
+          CinderLVMLoopDeviceSize:
+            get_param:
+            - Cinder-Storage-1::CinderLVMLoopDeviceSize
+          EnablePackageInstall:
+            get_param:
+            - Cinder-Storage-1::EnablePackageInstall
+          ExtraConfig:
+            get_param:
+            - Cinder-Storage-1::ExtraConfig
+          Flavor:
+            get_param:
+            - Cinder-Storage-1::Flavor
+          GlancePort:
+            get_param:
+            - Cinder-Storage-1::GlancePort
+          Image:
+            get_param:
+            - Cinder-Storage-1::Image
+          KeyName:
+            get_param:
+            - Cinder-Storage-1::KeyName
+          NtpServer:
+            get_param:
+            - Cinder-Storage-1::NtpServer
+          RabbitPassword:
+            get_param:
+            - Cinder-Storage-1::RabbitPassword
+          RabbitUserName:
+            get_param:
+            - Cinder-Storage-1::RabbitUserName
+          SnmpdReadonlyUserName:
+            get_param:
+            - Cinder-Storage-1::SnmpdReadonlyUserName
+          SnmpdReadonlyUserPassword:
+            get_param:
+            - Cinder-Storage-1::SnmpdReadonlyUserPassword
+          VirtualIP:
+            get_attr:
+            - ControlVirtualIP
+            - fixed_ips
+            - 0
+            - ip_address
+        type: Tuskar::Cinder-Storage-1
+    type: OS::Heat::ResourceGroup
+  Compute:
+    properties:
+      count:
+        get_param:
+        - Compute-1::count
+      resource_def:
+        properties:
+          AdminPassword:
+            get_param:
+            - Compute-1::AdminPassword
+          CeilometerComputeAgent:
+            get_param:
+            - Compute-1::CeilometerComputeAgent
+          CeilometerMeteringSecret:
+            get_param:
+            - Compute-1::CeilometerMeteringSecret
+          CeilometerPassword:
+            get_param:
+            - Compute-1::CeilometerPassword
+          Debug:
+            get_param:
+            - Compute-1::Debug
+          EnablePackageInstall:
+            get_param:
+            - Compute-1::EnablePackageInstall
+          ExtraConfig:
+            get_param:
+            - Compute-1::ExtraConfig
+          Flavor:
+            get_param:
+            - Compute-1::Flavor
+          GlanceHost:
+            get_attr:
+            - ControlVirtualIP
+            - fixed_ips
+            - 0
+            - ip_address
+          GlancePort:
+            get_param:
+            - Compute-1::GlancePort
+          GlanceProtocol:
+            get_param:
+            - Compute-1::GlanceProtocol
+          Image:
+            get_param:
+            - Compute-1::Image
+          ImageUpdatePolicy:
+            get_param:
+            - Compute-1::ImageUpdatePolicy
+          KeyName:
+            get_param:
+            - Compute-1::KeyName
+          KeystoneHost:
+            get_attr:
+            - ControlVirtualIP
+            - fixed_ips
+            - 0
+            - ip_address
+          NeutronAgentMode:
+            get_param:
+            - Compute-1::NeutronAgentMode
+          NeutronAllowL3AgentFailover:
+            get_param:
+            - Compute-1::NeutronAllowL3AgentFailover
+          NeutronBridgeMappings:
+            get_param:
+            - Compute-1::NeutronBridgeMappings
+          NeutronDVR:
+            get_param:
+            - Compute-1::NeutronDVR
+          NeutronEnableTunnelling:
+            get_param:
+            - Compute-1::NeutronEnableTunnelling
+          NeutronFlatNetworks:
+            get_param:
+            - Compute-1::NeutronFlatNetworks
+          NeutronHost:
+            get_attr:
+            - ControlVirtualIP
+            - fixed_ips
+            - 0
+            - ip_address
+          NeutronL3HA:
+            get_param:
+            - Compute-1::NeutronL3HA
+          NeutronMechanismDrivers:
+            get_param:
+            - Compute-1::NeutronMechanismDrivers
+          NeutronMetadataProxySharedSecret:
+            get_param:
+            - Compute-1::NeutronMetadataProxySharedSecret
+          NeutronNetworkType:
+            get_param:
+            - Compute-1::NeutronNetworkType
+          NeutronNetworkVLANRanges:
+            get_param:
+            - Compute-1::NeutronNetworkVLANRanges
+          NeutronPassword:
+            get_param:
+            - Compute-1::NeutronPassword
+          NeutronPhysicalBridge:
+            get_param:
+            - Compute-1::NeutronPhysicalBridge
+          NeutronPublicInterface:
+            get_param:
+            - Compute-1::NeutronPublicInterface
+          NeutronPublicInterfaceRawDevice:
+            get_param:
+            - Compute-1::NeutronPublicInterfaceRawDevice
+          NeutronTunnelTypes:
+            get_param:
+            - Compute-1::NeutronTunnelTypes
+          NovaApiHost:
+            get_attr:
+            - ControlVirtualIP
+            - fixed_ips
+            - 0
+            - ip_address
+          NovaComputeDriver:
+            get_param:
+            - Compute-1::NovaComputeDriver
+          NovaComputeExtraConfig:
+            get_param:
+            - Compute-1::NovaComputeExtraConfig
+          NovaComputeLibvirtType:
+            get_param:
+            - Compute-1::NovaComputeLibvirtType
+          NovaEnableRbdBackend:
+            get_param:
+            - Compute-1::NovaEnableRbdBackend
+          NovaPassword:
+            get_param:
+            - Compute-1::NovaPassword
+          NovaPublicIP:
+            get_attr:
+            - PublicVirtualIP
+            - fixed_ips
+            - 0
+            - ip_address
+          NtpServer:
+            get_param:
+            - Compute-1::NtpServer
+          RabbitHost:
+            get_attr:
+            - ControlVirtualIP
+            - fixed_ips
+            - 0
+            - ip_address
+          RabbitPassword:
+            get_param:
+            - Compute-1::RabbitPassword
+          RabbitUserName:
+            get_param:
+            - Compute-1::RabbitUserName
+          SnmpdReadonlyUserName:
+            get_param:
+            - Compute-1::SnmpdReadonlyUserName
+          SnmpdReadonlyUserPassword:
+            get_param:
+            - Compute-1::SnmpdReadonlyUserPassword
+        type: Tuskar::Compute-1
+    type: OS::Heat::ResourceGroup
+  ComputeAllNodesDeployment:
+    properties:
+      config:
+        get_attr:
+        - allNodesConfig
+        - config_id
+      servers:
+        get_attr:
+        - Compute
+        - attributes
+        - nova_server_resource
+    type: OS::Heat::StructuredDeployments
+  ComputeCephDeployment:
+    properties:
+      config:
+        get_attr:
+        - CephClusterConfig
+        - config_id
+      servers:
+        get_attr:
+        - Compute
+        - attributes
+        - nova_server_resource
+    type: OS::Heat::StructuredDeployments
+  ComputeNodesPostDeployment:
+    depends_on:
+    - ComputeAllNodesDeployment
+    - ComputeCephDeployment
+    properties:
+      servers:
+        get_attr:
+        - Compute
+        - attributes
+        - nova_server_resource
+    type: OS::TripleO::ComputePostDeployment
+  ControlVirtualIP:
+    properties:
+      fixed_ips:
+        get_param: ControlFixedIPs
+      name: control_virtual_ip
+      network_id:
+        get_param: NeutronControlPlaneID
+      replacement_policy: AUTO
+    type: OS::Neutron::Port
+  Controller:
+    properties:
+      count:
+        get_param:
+        - Controller-1::count
+      resource_def:
+        properties:
+          AdminPassword:
+            get_param:
+            - Controller-1::AdminPassword
+          AdminToken:
+            get_param:
+            - Controller-1::AdminToken
+          CeilometerMeteringSecret:
+            get_param:
+            - Controller-1::CeilometerMeteringSecret
+          CeilometerPassword:
+            get_param:
+            - Controller-1::CeilometerPassword
+          CinderEnableIscsiBackend:
+            get_param:
+            - Controller-1::CinderEnableIscsiBackend
+          CinderEnableRbdBackend:
+            get_param:
+            - Controller-1::CinderEnableRbdBackend
+          CinderISCSIHelper:
+            get_param:
+            - Controller-1::CinderISCSIHelper
+          CinderLVMLoopDeviceSize:
+            get_param:
+            - Controller-1::CinderLVMLoopDeviceSize
+          CinderPassword:
+            get_param:
+            - Controller-1::CinderPassword
+          CloudName:
+            get_param:
+            - Controller-1::CloudName
+          ControlVirtualInterface:
+            get_param:
+            - Controller-1::ControlVirtualInterface
+          ControllerExtraConfig:
+            get_param:
+            - Controller-1::ControllerExtraConfig
+          Debug:
+            get_param:
+            - Controller-1::Debug
+          EnablePackageInstall:
+            get_param:
+            - Controller-1::EnablePackageInstall
+          ExtraConfig:
+            get_param:
+            - Controller-1::ExtraConfig
+          Flavor:
+            get_param:
+            - Controller-1::Flavor
+          GlanceLogFile:
+            get_param:
+            - Controller-1::GlanceLogFile
+          GlanceNotifierStrategy:
+            get_param:
+            - Controller-1::GlanceNotifierStrategy
+          GlancePassword:
+            get_param:
+            - Controller-1::GlancePassword
+          GlancePort:
+            get_param:
+            - Controller-1::GlancePort
+          GlanceProtocol:
+            get_param:
+            - Controller-1::GlanceProtocol
+          HeatAuthEncryptionKey:
+            get_resource: HeatAuthEncryptionKey
+          HeatPassword:
+            get_param:
+            - Controller-1::HeatPassword
+          HeatStackDomainAdminPassword:
+            get_param:
+            - Controller-1::HeatStackDomainAdminPassword
+          Image:
+            get_param:
+            - Controller-1::Image
+          ImageUpdatePolicy:
+            get_param:
+            - Controller-1::ImageUpdatePolicy
+          KeyName:
+            get_param:
+            - Controller-1::KeyName
+          KeystoneCACertificate:
+            get_param:
+            - Controller-1::KeystoneCACertificate
+          KeystoneSSLCertificate:
+            get_param:
+            - Controller-1::KeystoneSSLCertificate
+          KeystoneSSLCertificateKey:
+            get_param:
+            - Controller-1::KeystoneSSLCertificateKey
+          KeystoneSigningCertificate:
+            get_param:
+            - Controller-1::KeystoneSigningCertificate
+          KeystoneSigningKey:
+            get_param:
+            - Controller-1::KeystoneSigningKey
+          MysqlClusterUniquePart:
+            get_attr:
+            - MysqlClusterUniquePart
+            - value
+          MysqlInnodbBufferPoolSize:
+            get_param:
+            - Controller-1::MysqlInnodbBufferPoolSize
+          MysqlRootPassword:
+            get_attr:
+            - MysqlRootPassword
+            - value
+          NeutronAgentMode:
+            get_param:
+            - Controller-1::NeutronAgentMode
+          NeutronAllowL3AgentFailover:
+            get_param:
+            - Controller-1::NeutronAllowL3AgentFailover
+          NeutronBridgeMappings:
+            get_param:
+            - Controller-1::NeutronBridgeMappings
+          NeutronDVR:
+            get_param:
+            - Controller-1::NeutronDVR
+          NeutronDnsmasqOptions:
+            get_param:
+            - Controller-1::NeutronDnsmasqOptions
+          NeutronEnableTunnelling:
+            get_param:
+            - Controller-1::NeutronEnableTunnelling
+          NeutronFlatNetworks:
+            get_param:
+            - Controller-1::NeutronFlatNetworks
+          NeutronL3HA:
+            get_param:
+            - Controller-1::NeutronL3HA
+          NeutronMechanismDrivers:
+            get_param:
+            - Controller-1::NeutronMechanismDrivers
+          NeutronMetadataProxySharedSecret:
+            get_param:
+            - Controller-1::NeutronMetadataProxySharedSecret
+          NeutronNetworkType:
+            get_param:
+            - Controller-1::NeutronNetworkType
+          NeutronNetworkVLANRanges:
+            get_param:
+            - Controller-1::NeutronNetworkVLANRanges
+          NeutronPassword:
+            get_param:
+            - Controller-1::NeutronPassword
+          NeutronPublicInterface:
+            get_param:
+            - Controller-1::NeutronPublicInterface
+          NeutronPublicInterfaceDefaultRoute:
+            get_param:
+            - Controller-1::NeutronPublicInterfaceDefaultRoute
+          NeutronPublicInterfaceIP:
+            get_param:
+            - Controller-1::NeutronPublicInterfaceIP
+          NeutronPublicInterfaceRawDevice:
+            get_param:
+            - Controller-1::NeutronPublicInterfaceRawDevice
+          NeutronPublicInterfaceTag:
+            get_param:
+            - Controller-1::NeutronPublicInterfaceTag
+          NeutronTunnelTypes:
+            get_param:
+            - Controller-1::NeutronTunnelTypes
+          NovaPassword:
+            get_param:
+            - Controller-1::NovaPassword
+          NtpServer:
+            get_param:
+            - Controller-1::NtpServer
+          PublicVirtualIP:
+            get_attr:
+            - PublicVirtualIP
+            - fixed_ips
+            - 0
+            - ip_address
+          PublicVirtualInterface:
+            get_param:
+            - Controller-1::PublicVirtualInterface
+          RabbitClientPort:
+            get_param:
+            - Controller-1::RabbitClientPort
+          RabbitClientUseSSL:
+            get_param:
+            - Controller-1::RabbitClientUseSSL
+          RabbitCookie:
+            get_attr:
+            - RabbitCookie
+            - value
+          RabbitPassword:
+            get_param:
+            - Controller-1::RabbitPassword
+          RabbitUserName:
+            get_param:
+            - Controller-1::RabbitUserName
+          SSLCACertificate:
+            get_param:
+            - Controller-1::SSLCACertificate
+          SSLCertificate:
+            get_param:
+            - Controller-1::SSLCertificate
+          SSLKey:
+            get_param:
+            - Controller-1::SSLKey
+          SnmpdReadonlyUserName:
+            get_param:
+            - Controller-1::SnmpdReadonlyUserName
+          SnmpdReadonlyUserPassword:
+            get_param:
+            - Controller-1::SnmpdReadonlyUserPassword
+          SwiftHashSuffix:
+            get_param:
+            - Controller-1::SwiftHashSuffix
+          SwiftMinPartHours:
+            get_param:
+            - Controller-1::SwiftMinPartHours
+          SwiftMountCheck:
+            get_param:
+            - Controller-1::SwiftMountCheck
+          SwiftPartPower:
+            get_param:
+            - Controller-1::SwiftPartPower
+          SwiftPassword:
+            get_param:
+            - Controller-1::SwiftPassword
+          SwiftReplicas:
+            get_param:
+            - Controller-1::SwiftReplicas
+          VirtualIP:
+            get_attr:
+            - ControlVirtualIP
+            - fixed_ips
+            - 0
+            - ip_address
+          update_timestamp:
+            get_param:
+            - Controller-1::update_timestamp
+        type: Tuskar::Controller-1
+    type: OS::Heat::ResourceGroup
+  ControllerAllNodesDeployment:
+    properties:
+      config:
+        get_attr:
+        - allNodesConfig
+        - config_id
+      servers:
+        get_attr:
+        - Controller
+        - attributes
+        - nova_server_resource
+    type: OS::Heat::StructuredDeployments
+  ControllerBootstrapNodeConfig:
+    properties:
+      bootstrap_nodeid:
+        get_attr:
+        - Controller
+        - resource.0.hostname
+    type: OS::TripleO::BootstrapNode::SoftwareConfig
+  ControllerBootstrapNodeDeployment:
+    properties:
+      config:
+        get_attr:
+        - ControllerBootstrapNodeConfig
+        - config_id
+      servers:
+        get_attr:
+        - Controller
+        - attributes
+        - nova_server_resource
+      signal_transport: NO_SIGNAL
+    type: OS::Heat::StructuredDeployments
+  ControllerCephDeployment:
+    properties:
+      config:
+        get_attr:
+        - CephClusterConfig
+        - config_id
+      servers:
+        get_attr:
+        - Controller
+        - attributes
+        - nova_server_resource
+    type: OS::Heat::StructuredDeployments
+  ControllerClusterConfig:
+    properties:
+      config:
+        corosync:
+          nodes:
+            get_attr:
+            - Controller
+            - corosync_node
+        haproxy:
+          nodes:
+            get_attr:
+            - Controller
+            - corosync_node
+        horizon:
+          caches:
+            memcached:
+              nodes:
+                get_attr:
+                - Controller
+                - hostname
+        mysql:
+          nodes:
+            get_attr:
+            - Controller
+            - corosync_node
+    type: OS::Heat::StructuredConfig
+  ControllerClusterDeployment:
+    properties:
+      config:
+        get_resource: ControllerClusterConfig
+      servers:
+        get_attr:
+        - Controller
+        - attributes
+        - nova_server_resource
+      signal_transport: NO_SIGNAL
+    type: OS::Heat::StructuredDeployments
+  ControllerNodesPostDeployment:
+    depends_on:
+    - ControllerBootstrapNodeDeployment
+    - ControllerAllNodesDeployment
+    - ControllerSwiftDeployment
+    - ControllerCephDeployment
+    properties:
+      servers:
+        get_attr:
+        - Controller
+        - attributes
+        - nova_server_resource
+    type: OS::TripleO::ControllerPostDeployment
+  ControllerSwiftDeployment:
+    properties:
+      config:
+        get_attr:
+        - SwiftDevicesAndProxyConfig
+        - config_id
+      servers:
+        get_attr:
+        - Controller
+        - attributes
+        - nova_server_resource
+      signal_transport: NO_SIGNAL
+    type: OS::Heat::StructuredDeployments
+  HeatAuthEncryptionKey:
+    type: OS::Heat::RandomString
+  MysqlClusterUniquePart:
+    properties:
+      length: 10
+    type: OS::Heat::RandomString
+  MysqlRootPassword:
+    properties:
+      length: 10
+    type: OS::Heat::RandomString
+  ObjectStorageAllNodesDeployment:
+    properties:
+      config:
+        get_attr:
+        - allNodesConfig
+        - config_id
+      servers:
+        get_attr:
+        - Swift-Storage
+        - attributes
+        - nova_server_resource
+    type: OS::Heat::StructuredDeployments
+  ObjectStorageNodesPostDeployment:
+    depends_on:
+    - ObjectStorageSwiftDeployment
+    - ObjectStorageAllNodesDeployment
+    properties:
+      servers:
+        get_attr:
+        - Swift-Storage
+        - attributes
+        - nova_server_resource
+    type: OS::TripleO::ObjectStoragePostDeployment
+  ObjectStorageSwiftDeployment:
+    properties:
+      config:
+        get_attr:
+        - SwiftDevicesAndProxyConfig
+        - config_id
+      servers:
+        get_attr:
+        - Swift-Storage
+        - attributes
+        - nova_server_resource
+      signal_transport: NO_SIGNAL
+    type: OS::Heat::StructuredDeployments
+  PublicVirtualIP:
+    properties:
+      fixed_ips:
+        get_param: PublicVirtualFixedIPs
+      name: public_virtual_ip
+      network:
+        get_param: PublicVirtualNetwork
+      replacement_policy: AUTO
+    type: OS::Neutron::Port
+  RabbitCookie:
+    properties:
+      length: 20
+      salt:
+        get_param: RabbitCookieSalt
+    type: OS::Heat::RandomString
+  Swift-Storage:
+    properties:
+      count:
+        get_param:
+        - Swift-Storage-1::count
+      resource_def:
+        properties:
+          EnablePackageInstall:
+            get_param:
+            - Swift-Storage-1::EnablePackageInstall
+          Flavor:
+            get_param:
+            - Swift-Storage-1::Flavor
+          HashSuffix:
+            get_param:
+            - Swift-Storage-1::HashSuffix
+          Image:
+            get_param:
+            - Swift-Storage-1::Image
+          KeyName:
+            get_param:
+            - Swift-Storage-1::KeyName
+          MinPartHours:
+            get_param:
+            - Swift-Storage-1::MinPartHours
+          MountCheck:
+            get_param:
+            - Swift-Storage-1::MountCheck
+          NtpServer:
+            get_param:
+            - Swift-Storage-1::NtpServer
+          PartPower:
+            get_param:
+            - Swift-Storage-1::PartPower
+          Replicas:
+            get_param:
+            - Swift-Storage-1::Replicas
+          SnmpdReadonlyUserName:
+            get_param:
+            - Swift-Storage-1::SnmpdReadonlyUserName
+          SnmpdReadonlyUserPassword:
+            get_param:
+            - Swift-Storage-1::SnmpdReadonlyUserPassword
+        type: Tuskar::Swift-Storage-1
+    type: OS::Heat::ResourceGroup
+  SwiftDevicesAndProxyConfig:
+    properties:
+      controller_swift_devices:
+        get_attr:
+        - Controller
+        - swift_device
+      controller_swift_proxy_memcaches:
+        get_attr:
+        - Controller
+        - swift_proxy_memcache
+      object_store_swift_devices:
+        get_attr:
+        - Swift-Storage
+        - swift_device
+    type: OS::TripleO::SwiftDevicesAndProxy::SoftwareConfig
+  allNodesConfig:
+    properties:
+      block_storage_hosts:
+        get_attr:
+        - Cinder-Storage
+        - hosts_entry
+      ceph_storage_hosts:
+        get_attr:
+        - Ceph-Storage
+        - hosts_entry
+      compute_hosts:
+        get_attr:
+        - Compute
+        - hosts_entry
+      controller_hosts:
+        get_attr:
+        - Controller
+        - hosts_entry
+      controller_ips:
+        get_attr:
+        - Controller
+        - ip_address
+      controller_names:
+        get_attr:
+        - Controller
+        - hostname
+      object_storage_hosts:
+        get_attr:
+        - Swift-Storage
+        - hosts_entry
+    type: OS::TripleO::AllNodes::SoftwareConfig

@@ -1,0 +1,310 @@
+parameters:
+  Ceph-Storage-1::EnablePackageInstall: 'false'
+  Ceph-Storage-1::Flavor: baremetal_ceph-storage
+  Ceph-Storage-1::Image: overcloud-full
+  Ceph-Storage-1::ImageUpdatePolicy: REBUILD_PRESERVE_EPHEMERAL
+  Ceph-Storage-1::KeyName: default
+  Ceph-Storage-1::NtpServer: ''
+  Ceph-Storage-1::count: '0'
+  CephAdminKey: ''
+  CephClusterFSID: ''
+  CephMonKey: ''
+  Cinder-Storage-1::CinderEnableIscsiBackend: true
+  Cinder-Storage-1::CinderISCSIHelper: lioadm
+  Cinder-Storage-1::CinderLVMLoopDeviceSize: 5000
+  Cinder-Storage-1::EnablePackageInstall: 'false'
+  Cinder-Storage-1::ExtraConfig: '{}'
+  Cinder-Storage-1::Flavor: baremetal_compute
+  Cinder-Storage-1::GlancePort: '9292'
+  Cinder-Storage-1::Image: overcloud-full
+  Cinder-Storage-1::KeyName: default
+  Cinder-Storage-1::NtpServer: ''
+  Cinder-Storage-1::RabbitPassword: ''
+  Cinder-Storage-1::RabbitUserName: ''
+  Cinder-Storage-1::SnmpdReadonlyUserName: ro_snmp_user
+  Cinder-Storage-1::SnmpdReadonlyUserPassword: 883624479119e87648ae75ccf0e13cfcaab9c0c6
+  Cinder-Storage-1::count: '0'
+  Compute-1::AdminPassword: b5235281848e3c762abbe80ddb554e2027579651
+  Compute-1::CeilometerComputeAgent: ''
+  Compute-1::CeilometerMeteringSecret: d6455a209e3bf2c3dadf7e62b5f49d3f398992b4
+  Compute-1::CeilometerPassword: 7de144aa2c3334d3dcffa65c3043bc79ebd4fe67
+  Compute-1::Debug: ''
+  Compute-1::EnablePackageInstall: 'false'
+  Compute-1::ExtraConfig: '{}'
+  Compute-1::Flavor: baremetal_compute
+  Compute-1::GlancePort: '9292'
+  Compute-1::GlanceProtocol: http
+  Compute-1::Image: overcloud-full
+  Compute-1::ImageUpdatePolicy: REBUILD_PRESERVE_EPHEMERAL
+  Compute-1::KeyName: default
+  Compute-1::NeutronAgentMode: dvr_snat
+  Compute-1::NeutronAllowL3AgentFailover: 'True'
+  Compute-1::NeutronBridgeMappings: datacentre:br-ex
+  Compute-1::NeutronDVR: 'False'
+  Compute-1::NeutronEnableTunnelling: 'True'
+  Compute-1::NeutronFlatNetworks: datacentre
+  Compute-1::NeutronL3HA: 'False'
+  Compute-1::NeutronMechanismDrivers: openvswitch
+  Compute-1::NeutronMetadataProxySharedSecret: unset
+  Compute-1::NeutronNetworkType: gre
+  Compute-1::NeutronNetworkVLANRanges: datacentre
+  Compute-1::NeutronPassword: 067f86b35d8c186c04f853562b09d4d0f536ea72
+  Compute-1::NeutronPhysicalBridge: br-ex
+  Compute-1::NeutronPublicInterface: nic1
+  Compute-1::NeutronPublicInterfaceRawDevice: ''
+  Compute-1::NeutronTunnelTypes: gre
+  Compute-1::NovaComputeDriver: libvirt.LibvirtDriver
+  Compute-1::NovaComputeExtraConfig: {}
+  Compute-1::NovaComputeLibvirtType: qemu
+  Compute-1::NovaEnableRbdBackend: false
+  Compute-1::NovaPassword: 97e3618bc7d164e92622aab9b51dc63fca4e6fa1
+  Compute-1::NtpServer: ''
+  Compute-1::RabbitPassword: guest
+  Compute-1::RabbitUserName: guest
+  Compute-1::SnmpdReadonlyUserName: ro_snmp_user
+  Compute-1::SnmpdReadonlyUserPassword: 883624479119e87648ae75ccf0e13cfcaab9c0c6
+  Compute-1::count: '1'
+  ControlFixedIPs: []
+  Controller-1::AdminPassword: b5235281848e3c762abbe80ddb554e2027579651
+  Controller-1::AdminToken: 81fbefc8f74b6404775c500a67c99da43161b95d
+  Controller-1::CeilometerMeteringSecret: d6455a209e3bf2c3dadf7e62b5f49d3f398992b4
+  Controller-1::CeilometerPassword: 7de144aa2c3334d3dcffa65c3043bc79ebd4fe67
+  Controller-1::CinderEnableIscsiBackend: true
+  Controller-1::CinderEnableRbdBackend: false
+  Controller-1::CinderISCSIHelper: lioadm
+  Controller-1::CinderLVMLoopDeviceSize: 5000
+  Controller-1::CinderPassword: 22e45538d3156027d6c5ac02cf258fe2a69f37a9
+  Controller-1::CloudName: overcloud
+  Controller-1::ControlVirtualInterface: br-ex
+  Controller-1::ControllerExtraConfig: {}
+  Controller-1::Debug: ''
+  Controller-1::EnablePackageInstall: 'false'
+  Controller-1::ExtraConfig: '{}'
+  Controller-1::Flavor: baremetal_control
+  Controller-1::GlanceLogFile: ''
+  Controller-1::GlanceNotifierStrategy: noop
+  Controller-1::GlancePassword: f3114361d1a5555947c581d281209a2062b7dbbf
+  Controller-1::GlancePort: '9292'
+  Controller-1::GlanceProtocol: http
+  Controller-1::HeatPassword: 2fdabcf4915ba9b4f3db234ff9245da01d68b61d
+  Controller-1::HeatStackDomainAdminPassword: ''
+  Controller-1::Image: overcloud-full
+  Controller-1::ImageUpdatePolicy: REBUILD_PRESERVE_EPHEMERAL
+  Controller-1::KeyName: default
+  Controller-1::KeystoneCACertificate: '-----BEGIN CERTIFICATE-----
+
+    MIIDNzCCAh+gAwIBAgIBATANBgkqhkiG9w0BAQUFADBTMQswCQYDVQQGEwJYWDEO
+
+    MAwGA1UECBMFVW5zZXQxDjAMBgNVBAcTBVVuc2V0MQ4wDAYDVQQKEwVVbnNldDEU
+
+    MBIGA1UEAxMLS2V5c3RvbmUgQ0EwHhcNMTUwNDI4MTE0NDI4WhcNMjUwNDI1MTE0
+
+    NDI4WjBTMQswCQYDVQQGEwJYWDEOMAwGA1UECBMFVW5zZXQxDjAMBgNVBAcTBVVu
+
+    c2V0MQ4wDAYDVQQKEwVVbnNldDEUMBIGA1UEAxMLS2V5c3RvbmUgQ0EwggEiMA0G
+
+    CSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDbogQz3Annt3IKK2Grboq4Zjz7oVQ5
+
+    jBrweWnCf5wi7IXdxqEJ866uWd+iuHVDIo4g6YFsSEk5AB8TxcRNlWbDr2kQvmUO
+
+    jU5Fu+L/zo2L2lJp3cghVJNXQVwX+T1CbHGztOx+gW51QQUw+jv732PjcgukUH8W
+
+    BJ5okv+sju5oFBXtJDMLNCXEgNeXmnYmxT+dpTO3OnQO0jVyN9zdYU27L1hKPTQL
+
+    tNqXZKaEjxF9OMU4FCqWh/MnRU2DQKeT3dzbPa2A9//5C+I3+MlgCvtr+oFCYtQm
+
+    YYqs9LatU+TFw+X4+C9GWh2UgCoXFCcdKbUKN9hMPsEffbL4HdNFtWDjAgMBAAGj
+
+    FjAUMBIGA1UdEwEB/wQIMAYBAf8CAQAwDQYJKoZIhvcNAQEFBQADggEBANS7mL2n
+
+    VYXlAOeFerLu1N8NWmyI5PwjmRbC2Uh75xoZTRuvuhkyNM7riNWsMTMG6p51YIPX
+
+    XrZsZNKasLDMAa7fKI/amFj30iRNyIefGNGDdzPMCM4HCp0J8CUAT5SBTaY/QsSE
+
+    n6RMES9oRkPCT+RIvAKgirABTFgHOBu/8IUhVQa9w52cx72YLFqk6ZOM/NCbWN8z
+
+    jnYToIIcwFyZconBRWbZOdJsRKNVHxf8DNKy5kkEuQo7RHyxP3uhaDYtkJiRU8RS
+
+    R4VbBneDgopM4X5u9MhEUVhpjyg6IJEexEtRacH2h6bXc42/lMF9TwejZhbH46mw
+
+    RIXXooM/ESaPfKE=
+
+    -----END CERTIFICATE-----'
+  Controller-1::KeystoneSSLCertificate: ''
+  Controller-1::KeystoneSSLCertificateKey: ''
+  Controller-1::KeystoneSigningCertificate: '-----BEGIN CERTIFICATE-----
+
+    MIIDJDCCAgygAwIBAgIBAjANBgkqhkiG9w0BAQUFADBTMQswCQYDVQQGEwJYWDEO
+
+    MAwGA1UECBMFVW5zZXQxDjAMBgNVBAcTBVVuc2V0MQ4wDAYDVQQKEwVVbnNldDEU
+
+    MBIGA1UEAxMLS2V5c3RvbmUgQ0EwHhcNMTUwNDI4MTE0NDI4WhcNMjUwNDI1MTE0
+
+    NDI4WjBYMQswCQYDVQQGEwJYWDEOMAwGA1UECBMFVW5zZXQxDjAMBgNVBAcTBVVu
+
+    c2V0MQ4wDAYDVQQKEwVVbnNldDEZMBcGA1UEAxMQS2V5c3RvbmUgU2lnbmluZzCC
+
+    ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALMVl1RWt4ZbF3rtwDjr15yR
+
+    4V07mV5vBP8Hemt01bTVqJT3CnDZdxhHEce1Kyko8n22vx8eKHxUFoo5668ajSan
+
+    TSPSLb6sNKdX271pu5j92kLtIaqy6mz6F/P0VX6ZLjWUzU2rVkjmUZ7jBR6J2wCP
+
+    m6HarveaqnPI55gR7Wgr6eF92B5f1SFudTY8J9lGIMmsYBCHmVC1AzbxPuNUDP72
+
+    vyWVhyaGeVepHsOLyocAG6Vgp1FUrxZ/etwi4gYg1Uyu0p0Fctf1zMmMUulIE2lY
+
+    Y1rj2DU6lYsiGJ+JDZ6y5cDeBqQhJWpqE8r2j4fnZOeWL+Zex8Q1If0jtXsneZcC
+
+    AwEAATANBgkqhkiG9w0BAQUFAAOCAQEAVmvwcUpCWsP+HsQuvyjUzcGG8gFiflCh
+
+    ZwhU7Tv7FpwbC4tmrc9+twTHtrkC89efxul6wUjidQZhi9TG/Op9PPTrwSUmoiI0
+
+    DY2WnIfaQ8/V3mI9OJrJbKnxWDm8MEChC67E7xoq//Ng8suQkSGUl/HHsOi+N+NA
+
+    5tS8yGFcoKMUInbgN5UmlPnl7SyBg2xyT0p7l8pAnVNp6yYM8X7vS8KOO/TNL+ja
+
+    UMRA3L8Eq9ZsNoQ+Zj8EqhGTbqmjbEDdk/COEydhjiMyCdmuEsTuTS9rYzhdjidt
+
+    v9t49f3O8Ztk97P/ijo3B0DAFDb6QKizDyeLlnWxf9Ll3c6o4+y9mA==
+
+    -----END CERTIFICATE-----'
+  Controller-1::KeystoneSigningKey: '-----BEGIN PRIVATE KEY-----
+
+    MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCzFZdUVreGWxd6
+
+    7cA469eckeFdO5lebwT/B3prdNW01aiU9wpw2XcYRxHHtSspKPJ9tr8fHih8VBaK
+
+    OeuvGo0mp00j0i2+rDSnV9u9abuY/dpC7SGqsups+hfz9FV+mS41lM1Nq1ZI5lGe
+
+    4wUeidsAj5uh2q73mqpzyOeYEe1oK+nhfdgeX9UhbnU2PCfZRiDJrGAQh5lQtQM2
+
+    8T7jVAz+9r8llYcmhnlXqR7Di8qHABulYKdRVK8Wf3rcIuIGINVMrtKdBXLX9czJ
+
+    jFLpSBNpWGNa49g1OpWLIhifiQ2esuXA3gakISVqahPK9o+H52Tnli/mXsfENSH9
+
+    I7V7J3mXAgMBAAECggEBAIMk55o6mtFIOeyq2R6WD2I4LlpxP8I4+OauGkdA2xM/
+
+    d+IG+11i02Uy/mFKWd4df17yigmGs01A4vS8r8yeXAmXcNUvoJJGV5TIsUGHgXrr
+
+    Q3/JWeNAfI3ro8jiAA3irUVNv/8F3v0ptVHunBweBgPmJqmjlIf8eqCp2nexgTLL
+
+    43tT6Z9J8bbInuwgoMg3C6SNQBnxVu/e8Nul3m4xzlOmrldo5DvrsdpAJajGeoi2
+
+    /euCFxS26bYGtbMUJSI70SVCoEJ4diY0G/DmMsPod6en3hkGRLWoOFAnhzINpz0m
+
+    0mjXzh67CuozIfmnhzHAxvL+ecH0TbYaBcaRGVusZAECgYEA5R/po0B3FMn4Yw9q
+
+    6zVJG/uyWTGOlMMpZ0L434ZkaxfmwI7dwnWNdsKX0odOrZouYJojToZ3lTIcx+eQ
+
+    kWQtZ+od0QNSa0kN23uuvFtJLB6S1A53vGGJdaDPHDsvIyKPlE7TAt/2hyNksaIK
+
+    0k1wb0VUMlU3HMfqiAEg18MO75cCgYEAyBcVJ1EugApWvsfjeCdyzVJCAzSWk9C6
+
+    qFHWBToU66DUBI1CXHFDL/yN/mk501WrSMjZ6nZ07HY6g2iBAo4iip2UNDW9VOuu
+
+    S8wc0gjnL12tqK8jhKiacxPUaTGwS4TOObSD/LpMKTrPnVqGgP5884iM6M9H8One
+
+    amwebuS9BgECgYARo0xEAfFoy0dwsL4lTxvKqKyJCzSTpRZp2ZD4/Ap86AEeb6EI
+
+    mC4Ep2Qyk7Ht0UGitBrlr5pDBPGMPfo2BwUry6zx6xSMJ7qGW9YOr+RJHi1lX5u+
+
+    B7AiOvfWj4PIa5+r5gl+XilHK+VTe0rj94whNLAPk9nDQGyAfb2+fkiHDwKBgHKN
+
+    RH8N6yFCygbPSVswunjx7vkG0m4twa87qtuzNObxXHB+rs9dyKlgXaqZc5GaKkWx
+
+    N5ET4DzAMx+oZLOhzASv0nlRiuNjSpX6dUWJ81EawKEiI6N/I21enOzclaGmlqpS
+
+    vn2h6phwIwxjFz4idEa4lnNyuC0kt0EWRRYXvmABAoGBAI8qOAGeSAcXI3uxtOrH
+
+    dAga77zV1T1ihd4nk1YaPOaQsnccEQZrRWqTKn78A75vxdQg5erNLvmR6Hx7xCAy
+
+    15cT4y22qP4LhIE49B81Ur6yQpbrecIp8rBR/7D2T9UEg+nPuaX+xXdN9cerbI+Q
+
+    W2NS2ciTclz4NuWzDKd5GtSb
+
+    -----END PRIVATE KEY-----'
+  Controller-1::MysqlInnodbBufferPoolSize: 0
+  Controller-1::NeutronAgentMode: dvr_snat
+  Controller-1::NeutronAllowL3AgentFailover: 'True'
+  Controller-1::NeutronBridgeMappings: datacentre:br-ex
+  Controller-1::NeutronDVR: 'False'
+  Controller-1::NeutronDnsmasqOptions: dhcp-option-force=26,1400
+  Controller-1::NeutronEnableTunnelling: 'True'
+  Controller-1::NeutronFlatNetworks: datacentre
+  Controller-1::NeutronL3HA: 'False'
+  Controller-1::NeutronMechanismDrivers: openvswitch
+  Controller-1::NeutronMetadataProxySharedSecret: unset
+  Controller-1::NeutronNetworkType: gre
+  Controller-1::NeutronNetworkVLANRanges: datacentre
+  Controller-1::NeutronPassword: 067f86b35d8c186c04f853562b09d4d0f536ea72
+  Controller-1::NeutronPublicInterface: nic1
+  Controller-1::NeutronPublicInterfaceDefaultRoute: ''
+  Controller-1::NeutronPublicInterfaceIP: ''
+  Controller-1::NeutronPublicInterfaceRawDevice: ''
+  Controller-1::NeutronPublicInterfaceTag: ''
+  Controller-1::NeutronTunnelTypes: gre
+  Controller-1::NovaPassword: 97e3618bc7d164e92622aab9b51dc63fca4e6fa1
+  Controller-1::NtpServer: ''
+  Controller-1::PublicVirtualInterface: br-ex
+  Controller-1::RabbitClientPort: 5672
+  Controller-1::RabbitClientUseSSL: false
+  Controller-1::RabbitPassword: guest
+  Controller-1::RabbitUserName: guest
+  Controller-1::SSLCACertificate: ''
+  Controller-1::SSLCertificate: ''
+  Controller-1::SSLKey: ''
+  Controller-1::SnmpdReadonlyUserName: ro_snmp_user
+  Controller-1::SnmpdReadonlyUserPassword: 883624479119e87648ae75ccf0e13cfcaab9c0c6
+  Controller-1::SwiftHashSuffix: 06b2e23da90bcbcce1872fd6213db7badb00a304
+  Controller-1::SwiftMinPartHours: 1
+  Controller-1::SwiftMountCheck: 'false'
+  Controller-1::SwiftPartPower: 10
+  Controller-1::SwiftPassword: 398da09ca83b2da9348558e50f742ecc9478d91f
+  Controller-1::SwiftReplicas: 3
+  Controller-1::count: '1'
+  Controller-1::update_timestamp: ''
+  Debug: ''
+  DefaultSignalTransport: CFN_SIGNAL
+  NeutronControlPlaneID: 0d352064-9c2b-4c1c-8974-c4171d3c1a72
+  NeutronPublicInterfaceTag: ''
+  PublicVirtualFixedIPs: []
+  PublicVirtualNetwork: ctlplane
+  RabbitCookieSalt: unset
+  Swift-Storage-1::EnablePackageInstall: 'false'
+  Swift-Storage-1::Flavor: baremetal_compute
+  Swift-Storage-1::HashSuffix: unset
+  Swift-Storage-1::Image: overcloud-full
+  Swift-Storage-1::KeyName: default
+  Swift-Storage-1::MinPartHours: 1
+  Swift-Storage-1::MountCheck: 'false'
+  Swift-Storage-1::NtpServer: ''
+  Swift-Storage-1::PartPower: 10
+  Swift-Storage-1::Replicas: 3
+  Swift-Storage-1::SnmpdReadonlyUserName: ro_snmp_user
+  Swift-Storage-1::SnmpdReadonlyUserPassword: 883624479119e87648ae75ccf0e13cfcaab9c0c6
+  Swift-Storage-1::count: '0'
+resource_registry:
+  OS::TripleO::AllNodes::SoftwareConfig: puppet/all-nodes-config.yaml
+  OS::TripleO::BlockStorage: puppet/cinder-storage-puppet.yaml
+  OS::TripleO::BlockStoragePostDeployment: puppet/cinder-storage-post.yaml
+  OS::TripleO::BootstrapNode::SoftwareConfig: puppet/bootstrap-config.yaml
+  OS::TripleO::CephClusterConfig::SoftwareConfig: puppet/ceph-cluster-config.yaml
+  OS::TripleO::CephStorage: puppet/ceph-storage-puppet.yaml
+  OS::TripleO::CephStoragePostDeployment: puppet/ceph-storage-post-puppet.yaml
+  OS::TripleO::Compute: puppet/compute-puppet.yaml
+  OS::TripleO::ComputePostDeployment: puppet/compute-post-puppet.yaml
+  OS::TripleO::Controller: puppet/controller-puppet.yaml
+  OS::TripleO::ControllerPostDeployment: puppet/controller-post-puppet.yaml
+  OS::TripleO::Net::SoftwareConfig: net-config-bridge.yaml
+  OS::TripleO::NodeExtraConfigPost: extraconfig/post_deploy/default.yaml
+  OS::TripleO::NodeUserData: firstboot/userdata_default.yaml
+  OS::TripleO::ObjectStorage: puppet/swift-storage-puppet.yaml
+  OS::TripleO::ObjectStoragePostDeployment: puppet/swift-storage-post.yaml
+  OS::TripleO::SoftwareDeployment: OS::Heat::StructuredDeployment
+  OS::TripleO::SwiftDevicesAndProxy::SoftwareConfig: puppet/swift-devices-and-proxy-config.yaml
+  Tuskar::Ceph-Storage-1: provider-Ceph-Storage-1.yaml
+  Tuskar::Cinder-Storage-1: provider-Cinder-Storage-1.yaml
+  Tuskar::Compute-1: provider-Compute-1.yaml
+  Tuskar::Controller-1: provider-Controller-1.yaml
+  Tuskar::Swift-Storage-1: provider-Swift-Storage-1.yaml

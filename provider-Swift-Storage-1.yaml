@@ -1,0 +1,179 @@
+description: Common Swift Storage Configuration
+heat_template_version: 2014-10-16
+outputs:
+  hosts_entry:
+    value:
+      str_replace:
+        params:
+          HOST:
+            get_attr:
+            - SwiftStorage
+            - name
+          IP:
+            get_attr:
+            - SwiftStorage
+            - networks
+            - ctlplane
+            - 0
+        template: IP HOST HOST.novalocal
+  nova_server_resource:
+    description: Heat resource handle for the swift storage server
+    value:
+      get_resource: SwiftStorage
+  swift_device:
+    description: Swift device formatted for swift-ring-builder
+    value:
+      str_replace:
+        params:
+          IP:
+            get_attr:
+            - SwiftStorage
+            - networks
+            - ctlplane
+            - 0
+        template: r1z1-IP:%PORT%/d1
+parameters:
+  EnablePackageInstall:
+    default: 'false'
+    description: Set to true to enable package installation via Puppet
+    type: boolean
+  Flavor:
+    constraints:
+    - custom_constraint: nova.flavor
+    description: Flavor for Swift storage nodes to request when deploying.
+    type: string
+  HashSuffix:
+    default: unset
+    description: A random string to be used as a salt when hashing to determine mappings
+      in the ring.
+    hidden: true
+    type: string
+  Image:
+    default: overcloud-swift-storage
+    type: string
+  KeyName:
+    default: default
+    description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+    type: string
+  MinPartHours:
+    default: 1
+    description: The minimum time (in hours) before a partition in a ring can be moved
+      following a rebalance.
+    type: number
+  MountCheck:
+    default: 'false'
+    description: Value of mount_check in Swift account/container/object -server.conf
+    type: boolean
+  NtpServer:
+    default: ''
+    type: string
+  PartPower:
+    default: 10
+    description: Partition Power to use when building Swift rings
+    type: number
+  Replicas:
+    default: 3
+    description: How many replicas to use in the swift rings.
+    type: number
+  SnmpdReadonlyUserName:
+    default: ro_snmp_user
+    description: The user name for SNMPd with readonly rights running on all Overcloud
+      nodes
+    type: string
+  SnmpdReadonlyUserPassword:
+    default: unset
+    description: The user password for SNMPd with readonly rights running on all Overcloud
+      nodes
+    hidden: true
+    type: string
+resources:
+  NodeUserData:
+    type: OS::TripleO::NodeUserData
+  SwiftStorage:
+    properties:
+      flavor:
+        get_param: Flavor
+      image:
+        get_param: Image
+      key_name:
+        get_param: KeyName
+      networks:
+      - network: ctlplane
+      user_data:
+        get_resource: NodeUserData
+      user_data_format: SOFTWARE_CONFIG
+    type: OS::Nova::Server
+  SwiftStorageHieraConfig:
+    properties:
+      config:
+        hiera:
+          datafiles:
+            common:
+              raw_data:
+                get_file: hieradata/common.yaml
+            object:
+              mapped_data:
+                enable_package_install:
+                  get_input: enable_package_install
+                ntp::servers:
+                  get_input: ntp_servers
+                swift::storage::all::storage_local_net_ip:
+                  get_input: local_ip
+                swift::swift_hash_suffix:
+                  get_input: swift_hash_suffix
+                swift_mount_check:
+                  get_input: swift_mount_check
+                tripleo::ringbuilder::build_ring: true
+                tripleo::ringbuilder::min_part_hours:
+                  get_input: swift_min_part_hours
+                tripleo::ringbuilder::part_power:
+                  get_input: swift_part_power
+                tripleo::ringbuilder::replicas:
+                  get_input: swift_replicas
+              oac_data:
+                tripleo::ringbuilder::devices: swift.devices
+              raw_data:
+                get_file: hieradata/object.yaml
+          hierarchy:
+          - heat_config_%{::deploy_config_name}
+          - object
+          - common
+      group: os-apply-config
+    type: OS::Heat::StructuredConfig
+  SwiftStorageHieraDeploy:
+    properties:
+      config:
+        get_resource: SwiftStorageHieraConfig
+      input_values:
+        enable_package_install:
+          get_param: EnablePackageInstall
+        local_ip:
+          get_attr:
+          - SwiftStorage
+          - networks
+          - ctlplane
+          - 0
+        ntp_servers:
+          str_replace:
+            params:
+              server:
+                get_param: NtpServer
+            template: '["server"]'
+        snmpd_readonly_user_name:
+          get_param: SnmpdReadonlyUserName
+        snmpd_readonly_user_password:
+          get_param: SnmpdReadonlyUserPassword
+        swift_hash_suffix:
+          get_param: HashSuffix
+        swift_min_part_hours:
+          get_param: MinPartHours
+        swift_mount_check:
+          get_param: MountCheck
+        swift_part_power:
+          get_param: PartPower
+        swift_replicas:
+          get_param: Replicas
+      server:
+        get_resource: SwiftStorage
+      signal_transport: NO_SIGNAL
+    type: OS::Heat::StructuredDeployment
